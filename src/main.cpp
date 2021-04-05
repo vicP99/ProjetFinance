@@ -3,7 +3,8 @@
 ofstream out("out/sortie.txt");
 
 int main(){
-    int nb_simul=10000;
+    //srand (time(NULL));
+    int nb_simul=100;
     double T=2;
     double rho=0.5;
     double r=0.01;
@@ -30,7 +31,12 @@ int main(){
         
     }
     double P=exp(-r*T)*E(Splus);
+    double var=exp(-2*r*T)*V(Splus);
+    double sig=sqrt(T*(sig1*sig1+sig2*sig2-2*rho*sig1*sig2));
+    double P_a=I(1/sig+sig/2)-I(1/sig-sig/2);
     cout<<"P="<<P<<"\n";
+    cout<<"P_analytique="<<P_a<<"\n";
+    cout<<"intervalle de confiance ["<<P-1.645*sqrt(var)/(double)nb_simul<<","<<P+1.645*sqrt(var)/(double)nb_simul<<"]\n";
 
-    return 0;
+    return 1;
 }

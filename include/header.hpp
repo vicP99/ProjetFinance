@@ -1,8 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <vector>
+#include <time.h>
 using namespace std;
 
 #ifndef MAIN_H
@@ -34,5 +36,6 @@ vector<vecteur> normal_indep(int nbpoint,double sig1=1,double sig2=1,double mu1=
 
 double E(vecteur v);
 
+double V(vecteur v);
 double I(double x);
 #endif

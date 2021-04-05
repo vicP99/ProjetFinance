@@ -79,9 +79,28 @@ double E(vecteur v)
     return sum/((double)taille);
 }
 
+double V(vecteur v)
+{
+    double mu=E(v);
+    int taille=v.v.size();
+    double sum=0;
+    for (int i=0;i<taille;i++)
+    {
+        sum+=pow((v[i]-mu),2);
+    }
+    return sum/((double)(taille-1));
+}
+
 double I(double x)
 {
     double t=1/(1+0.2316419*x);
-    double res=1-(1/sqrt(2*M_PI))*exp(-x*x/2)*(0.319381530*t-0.356563782*pow(t,2)+1.781477937*pow(t,3)-1.821255978*pow(t,4)+1.330274429*pow(t,5));
-    return res;
+    double res=(1/sqrt(2*M_PI))*exp(-x*x/2)*(0.319381530*t-0.356563782*pow(t,2)+1.781477937*pow(t,3)-1.821255978*pow(t,4)+1.330274429*pow(t,5));
+    if(x>0)
+    {
+        return 1.-res;
+    }
+    else
+    {
+        return res;
+    }
 }
