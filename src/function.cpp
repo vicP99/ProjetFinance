@@ -138,3 +138,11 @@ double I(double x)
     }
 }
 
+double psi(double y,parametre par){
+    double K=par.alpha*par.S1*exp((-pow(par.sig1,2))/2*par.T+par.sig1*y);
+    double alphaModifie=K;
+    double sig2Mod=par.sig2 *sqrt(1-pow(par.rho,2));
+    double betaModifie=par.beta*par.S2*exp(par.T/2*(pow(sig2Mod,2)-pow(par.sig2,2))+par.sig2*par.rho*y);
+    double sigMod=sig2Mod*sqrt(par.T);
+    return alphaModifie*I(1/sigMod*(log(alphaModifie/betaModifie)+1/2*sigMod*sigMod)) -betaModifie*I(1/sigMod*(log(alphaModifie/betaModifie)-1/2*sigMod*sigMod));
+}

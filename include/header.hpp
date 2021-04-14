@@ -41,4 +41,21 @@ double E(vecteur v);
 double V(vecteur v);
 double I(double x);
 double Cov(vecteur v1,vecteur v2);
+
+
+
+class parametre{
+    public:
+    double alpha;
+    double beta;
+    double S1;
+    double S2;
+    double T;
+    double sig1;
+    double sig2;
+    double rho;
+    double r;
+    int nb_simul;
+};
+double psi(double y, parametre par);
 #endif
