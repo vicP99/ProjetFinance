@@ -26,6 +26,8 @@ class vecteur{
 };
 ostream & operator <<( ostream & flux,const vecteur & v);
 vecteur operator +(const vecteur & v1,const vecteur & v2);
+vecteur operator +(const double a,const vecteur & v);
+vecteur operator +(vecteur & v,const double a);
 vecteur operator *(double a,const vecteur & v);
 vecteur operator *(const vecteur & v,double a);
 
@@ -38,4 +40,5 @@ double E(vecteur v);
 
 double V(vecteur v);
 double I(double x);
+double Cov(vecteur v1,vecteur v2);
 #endif

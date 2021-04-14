@@ -14,6 +14,22 @@ vecteur operator +(const vecteur & v1,const vecteur & v2)
     return res;
 }
 
+vecteur operator +(const double a,const vecteur & v)
+{
+    int taille=v.v.size();
+    vecteur res(taille);
+    for(int i=0;i<taille;i++)
+    {
+        res[i]=v[i]+a;
+    }
+    return res;
+}
+
+vecteur operator +(const vecteur & v, const double a)
+{
+    return a+v;
+}
+
 vecteur operator *(double a ,const vecteur & v)
 {
     int taille=v.v.size();
@@ -91,16 +107,34 @@ double V(vecteur v)
     return sum/((double)(taille-1));
 }
 
+double Cov(vecteur v1,vecteur v2)
+{
+    double mu1=E(v1);
+    double mu2=E(v2);
+    double sum=0;
+    int taille=min(v1.v.size(),v2.v.size());
+    for(int i=0;i<taille;i++)
+    {
+        sum+=(v1[i]-mu1)*(v2[i]-mu2);
+    }
+    return sum/((double)(taille-1));
+}
+
 double I(double x)
 {
-    double t=1/(1+0.2316419*x);
-    double res=(1/sqrt(2*M_PI))*exp(-x*x/2)*(0.319381530*t-0.356563782*pow(t,2)+1.781477937*pow(t,3)-1.821255978*pow(t,4)+1.330274429*pow(t,5));
+    double t;
+    double res;
     if(x>0)
     {
+        t=1/(1+0.2316419*x);
+        res=(1/sqrt(2*M_PI))*exp(-x*x/2)*(0.319381530*t-0.356563782*pow(t,2)+1.781477937*pow(t,3)-1.821255978*pow(t,4)+1.330274429*pow(t,5));
         return 1.-res;
     }
     else
     {
+        t=1/(1-0.2316419*x);
+        res=(1/sqrt(2*M_PI))*exp(-x*x/2)*(0.319381530*t-0.356563782*pow(t,2)+1.781477937*pow(t,3)-1.821255978*pow(t,4)+1.330274429*pow(t,5));
         return res;
     }
 }
+
