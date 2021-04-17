@@ -10,7 +10,7 @@ int main(){
     par.r=0.01;
     par.sig1=0.25;
     par.sig2=0.3;
-    par.beta=1;
+    par.beta=10;
     par.alpha=1;
     par.S2=1;
     par.S1=1;
