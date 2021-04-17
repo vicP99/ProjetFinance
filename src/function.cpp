@@ -29,6 +29,32 @@ vecteur operator +(const vecteur & v, const double a)
 {
     return a+v;
 }
+vecteur operator -(const vecteur & v1,const vecteur & v2)
+{
+    int taille=v1.v.size();
+    vecteur res(taille);
+    for(int i=0;i<taille;i++)
+    {
+        res[i]=v1[i]-v2[i];
+    }
+    return res;
+}
+
+vecteur operator -(const double a,const vecteur & v)
+{
+    int taille=v.v.size();
+    vecteur res(taille);
+    for(int i=0;i<taille;i++)
+    {
+        res[i]=v[i]-a;
+    }
+    return res;
+}
+
+vecteur operator -(const vecteur & v, const double a)
+{
+    return a-v;
+}
 
 vecteur operator *(double a ,const vecteur & v)
 {
@@ -57,7 +83,25 @@ ostream & operator <<( ostream & flux,const vecteur & v)
     flux<<v[taille-1]<<")\n";
     return flux;
 }
-
+ostream & operator <<( ostream & flux,const simulation & v)
+{
+    flux<<"La valeur est: "<<v.val<<" et l'interval de confiance à 95\% est: ["<<v.ICinf<<","<<v.ICsup<<"] avec une erreure de "<<v.val-v.ICinf<<endl;
+    return flux;
+}
+vecteur exp(const vecteur& v){
+    vecteur res(v.v.size());
+    for(uint i=0;i<v.v.size();i++){
+        res[i]=exp(v[i]);
+    }
+    return res;
+}
+vecteur Plus(const vecteur& v){
+    vecteur res(v.v.size());
+    for(uint i=0;i<v.v.size();i++){
+        res[i]=max(v[i],0.);
+    }
+    return res;
+}
 vecteur loi_unif(double a, double b, int nb_points){
     vecteur res(nb_points);
     for (int i=0;i<nb_points;i++){
@@ -139,10 +183,83 @@ double I(double x)
 }
 
 double psi(double y,parametre par){
-    double K=par.alpha*par.S1*exp((-pow(par.sig1,2))/2*par.T+par.sig1*y);
-    double alphaModifie=K;
-    double sig2Mod=par.sig2 *sqrt(1-pow(par.rho,2));
-    double betaModifie=par.beta*par.S2*exp(par.T/2*(pow(sig2Mod,2)-pow(par.sig2,2))+par.sig2*par.rho*y);
-    double sigMod=sig2Mod*sqrt(par.T);
-    return alphaModifie*I(1/sigMod*(log(alphaModifie/betaModifie)+1/2*sigMod*sigMod)) -betaModifie*I(1/sigMod*(log(alphaModifie/betaModifie)-1/2*sigMod*sigMod));
+    double alphaModifie=par.alpha*par.S1*exp((pow(par.sig1,2))/2*-par.T+par.sig1*y);
+    double betaModifie=par.beta*par.S2*exp((pow(par.sig2*par.rho,2))*(-par.T/2)+par.sig2*par.rho*y);
+    double sigMod=par.sig2*sqrt((1-pow(par.rho,2))*par.T);
+    return alphaModifie*I((log(alphaModifie/betaModifie)/sigMod+sigMod/2)) -betaModifie*I((log(alphaModifie/betaModifie)/sigMod-sigMod/2));
+}
+vecteur psi(const vecteur& v,parametre par){
+    vecteur res(v.v.size());
+    for (uint i=0;i<v.v.size();i++){
+        res[i]=psi(v[i],par);
+    }
+    return res;
+}
+double psi_spread(double y,parametre par){
+    double alphaModifie=par.alpha*par.S1*exp((pow(par.sig1,2))/2*-par.T+par.sig1*y)- par.K;
+    double betaModifie=par.beta*par.S2*exp((pow(par.sig2*par.rho,2))*(-par.T/2)+par.sig2*par.rho*y);
+    double sigMod=par.sig2*sqrt((1-pow(par.rho,2))*par.T);
+    return alphaModifie*I((log(alphaModifie/betaModifie)/sigMod+sigMod/2)) -betaModifie*I((log(alphaModifie/betaModifie)/sigMod-sigMod/2));
+}
+vecteur psi_spread(const vecteur& v,parametre par){
+    vecteur res(v.v.size());
+    for (uint i=0;i<v.v.size();i++){
+        res[i]=psi_spread(v[i],par);
+    }
+    return res;
+}
+simulation echange_MC(parametre par){
+    simulation res;
+    vecteur S1,S2;
+    vector<vecteur> inde=normal_indep(par.nb_simul,sqrt(par.T),sqrt(par.T));
+    vecteur W2=par.rho*inde[0]+sqrt(1-par.rho*par.rho)*inde[1];
+    vecteur W1=inde[0];
+    S1=par.alpha*par.S1*exp((par.r-par.sig1*par.sig1/2.)*par.T+par.sig1*W1);
+    S2=par.beta*par.S2*exp((par.r-par.sig2*par.sig2/2.)*par.T+par.sig2*W2);
+    vecteur Splus=Plus(S1-S2);
+    res.val=exp(-par.r*par.T)*E(Splus);
+    double var=exp(-2*par.r*par.T)*V(Splus);
+    res.ICinf=res.val-1.96*sqrt(var/(double)par.nb_simul);
+    res.ICsup=res.val+1.96*sqrt(var/(double)par.nb_simul);
+    return res;
+}
+simulation echange_MC_conditionner(parametre par){
+    simulation res;
+    vecteur S1,S2;
+    vector<vecteur> inde=normal_indep(par.nb_simul,sqrt(par.T),sqrt(par.T));
+    vecteur W1=inde[0];
+    vecteur vec=psi(W1,par);
+    res.val=E(vec);
+    double var=V(vec);
+    res.ICinf=res.val - 1.96*sqrt(var/(double)par.nb_simul);
+    res.ICsup=res.val + 1.96*sqrt(var/(double)par.nb_simul);
+    return res;
+}
+
+simulation spread_MC(parametre par){
+    simulation res;
+    vecteur S1,S2;
+    vector<vecteur> inde=normal_indep(par.nb_simul,sqrt(par.T),sqrt(par.T));
+    vecteur W2=par.rho*inde[0]+sqrt(1-par.rho*par.rho)*inde[1];
+    vecteur W1=inde[0];
+    S1=par.alpha*par.S1*exp((par.r-par.sig1*par.sig1/2.)*par.T+par.sig1*W1);
+    S2=par.beta*par.S2*exp((par.r-par.sig2*par.sig2/2.)*par.T+par.sig2*W2);
+    vecteur Splus=Plus(S1-S2-par.K);
+    res.val=exp(-par.r*par.T)*E(Splus);
+    double var=exp(-2*par.r*par.T)*V(Splus);
+    res.ICinf=res.val-1.96*sqrt(var/(double)par.nb_simul);
+    res.ICsup=res.val+1.96*sqrt(var/(double)par.nb_simul);
+    return res;
+}
+simulation spread_MC_conditionner(parametre par){
+    simulation res;
+    vecteur S1,S2;
+    vector<vecteur> inde=normal_indep(par.nb_simul,sqrt(par.T),sqrt(par.T));
+    vecteur W1=inde[0];
+    vecteur vec=psi_spread(W1,par);
+    res.val=E(vec);
+    double var=V(vec);
+    res.ICinf=res.val - 1.96*sqrt(var/(double)par.nb_simul);
+    res.ICsup=res.val + 1.96*sqrt(var/(double)par.nb_simul);
+    return res;
 }
