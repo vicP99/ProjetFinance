@@ -22,7 +22,7 @@ class vecteur{
 ostream & operator <<( ostream & flux,const vecteur & v);
 vecteur operator +(const vecteur & v1,const vecteur & v2);
 vecteur operator +(const double a,const vecteur & v);
-vecteur operator +(vecteur & v,const double a);
+vecteur operator +(const vecteur & v,const double a);
 vecteur operator -(const vecteur & v1,const vecteur & v2);
 vecteur operator -(const double a,const vecteur & v);
 vecteur operator -(vecteur & v,const double a);
@@ -30,6 +30,9 @@ vecteur operator *(double a,const vecteur & v);
 vecteur operator *(const vecteur & v,double a);
 vecteur exp(const vecteur&);
 vecteur Plus(const vecteur&);
+vecteur max(const vecteur&, const vecteur&);
+vecteur f(const vecteur& v, double K);
+
 
 
 vecteur loi_unif(double a, double b, int nb_points);
@@ -56,6 +59,8 @@ class parametre{
     double rho;
     double r;
     double K;
+    double quant;
+    double niv;
     int nb_simul;
 };
 
@@ -64,15 +69,22 @@ class simulation{
     double val;
     double ICinf;
     double ICsup;
+    double niv;
 };
 double psi(double y, parametre par);
 vecteur psi(const vecteur& v,parametre par);
 double psi_spread(double y, parametre par);
 vecteur psi_spread(const vecteur& v,parametre par);
+double psi_controle(double y, parametre par);
+vecteur psi_controle(const vecteur& v,parametre par);
 
 simulation echange_MC(parametre par);
 simulation echange_MC_conditionner(parametre par);
 simulation spread_MC(parametre par);
 simulation spread_MC_conditionner(parametre par);
+simulation variableControle(parametre par);
 ostream & operator <<( ostream & flux,const simulation & v);
+double forwardBestof(parametre par);
+simulation MC_forwardBestof(parametre par);
+simulation spread_Controle_2(parametre par);
 #endif
