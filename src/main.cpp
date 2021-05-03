@@ -4,79 +4,145 @@ ofstream out("out/sortie.txt");
 
 int main(){
     parametre par;
-    par.nb_simul=10000;
+    par.nb_simul=100000;
     par.T=2;
     par.rho=0.5;
     par.r=0.01;
     par.sig1=0.25;
     par.sig2=0.3;
-    par.beta=10;
+    par.beta=1;
     par.alpha=1;
     par.S2=1;
     par.S1=1;
-    double S1,S2,S1_anti,S2_anti;
-    vector<vecteur> inde=normal_indep(par.nb_simul,sqrt(par.T),sqrt(par.T));
-    vecteur W2=par.rho*inde[0]+sqrt(1-par.rho*par.rho)*inde[1];
-    vecteur W1=inde[0];
-    vecteur Splus(par.nb_simul);
-    vecteur Splus_anti(par.nb_simul);
-    for(int i=0;i<par.nb_simul;i++)
-    {
-        S1=par.alpha*exp((par.r-par.sig1*par.sig1/2.)*par.T+par.sig1*W1[i]);
-        S2=par.beta*exp((par.r-par.sig2*par.sig2/2.)*par.T+par.sig2*W2[i]);
-        S1_anti=par.alpha*exp((par.r-par.sig1*par.sig1/2.)*par.T+par.sig1*(-W1[i]));
-        S2_anti=par.beta*exp((par.r-par.sig2*par.sig2/2.)*par.T+par.sig2*(-W2[i]));
-        if(S1-S2<0)
-        {
-            Splus[i]=0;
-        }
-        else
-        {
-            Splus[i]=S1-S2;
-        }
-        if(S1_anti-S2_anti<0)
-        {
-            Splus_anti[i]=0;
-        }
-        else
-        {
-            Splus_anti[i]=S1_anti-S2_anti;
-        }
-        
-    }
-    double P=exp(-par.r*par.T)*E(Splus);
-    double P_anti=exp(-par.r*par.T)*(E(Splus)+E(Splus_anti))/2.;
-    double var=exp(-2*par.r*par.T)*V(Splus);
-    double var_anti=exp(-2*par.r*par.T)/4.*(V(Splus)+V(Splus_anti)+(1/((double) par.nb_simul))*Cov(Splus,Splus_anti));
+    par.K=0.2;
+    par.quant=1.644854;
+    par.niv=90;
+    
     double sig=sqrt(par.T*(par.sig1*par.sig1+par.sig2*par.sig2-2*par.rho*par.sig1*par.sig2));
-    double P_a=I(sig/2)-I(-sig/2);
+    double P_a=par.alpha*par.S1*I((1./sig)*(log(par.alpha*par.S1/(par.beta*par.S2))+(1./2.)*pow(sig,2)))-par.beta*par.S2*I((1./sig)*(log(par.alpha*par.S1/(par.beta*par.S2))-(1./2.)*pow(sig,2)));
 
 
-    double MCcond=0;
-    for (int i=0;i<par.nb_simul;i++){
-        MCcond+=psi(inde[1][i],par);
+
+   // cout<<"P="<<P_a<<endl;
+    //cout<<echange_MC(par);
+  //  cout<<echange_MC_conditionner(par);
+    cout<<spread_MC(par);
+    cout<<spread_MC_conditionner(par);
+    cout<<variableControle(par);
+    cout<<spread_Controle_2(par);
+    cout<<MC_forwardBestof(par);
+    cout<<forwardBestof(par);
+
+//affichage de la fonction d'echange avec rédution de variance pour rho dans ]-1,1[
+
+/* int n=100;
+for (int i=1;i<n;i++){
+    par.nb_simul= 10000; 
+    par.T=2;
+    par.r=0.01;
+    par.sig1=0.25;
+    par.sig2=0.3;
+    par.beta=1;
+    par.alpha=1;
+    par.S2=1;
+    par.K=0.2;
+    par.rho= -1.+(double)i*2./(double)n; 
+
+    simulation SMC=echange_MC_conditionner(par);
+    out<<SMC.val<<"\n";
+    out<<SMC.val-SMC.ICinf<<"\n";
+    }   */
+
+//Estimateur de spread par conditionnement tracer de trajectoire
+/*  int n=100;
+    for (int i=1;i<=n;i++){
+        par.nb_simul= 1000*i; 
+        par.rho=0.5;
+        par.T=2;
+        par.r=0.01;
+        par.sig1=0.25;
+        par.sig2=0.3;
+        par.beta=1;
+        par.alpha=1.2;
+        par.S2=1;
+        par.K=0.2;
+        simulation SMC=spread_MC_conditionner(par);
+        out<<SMC.val<<"\n";
+        out<<SMC.val-SMC.ICinf<<"\n";
+    }  */
+
+//affichage de la fonction spread avec rédution de variance pour rho dans ]-1,1[
+
+/* int n=100;
+for (int i=1;i<n;i++){
+    par.nb_simul= 10000; 
+    par.T=2;
+    par.r=0.01;
+    par.sig1=0.25;
+    par.sig2=0.3;
+    par.beta=1;
+    par.alpha=1;
+    par.S2=1;
+    par.K=0.2;
+    par.rho= -1.+(double)i*2./(double)n; 
+
+    simulation SMC=spread_MC_conditionner(par);
+    out<<SMC.val<<"\n";
+    out<<SMC.val-SMC.ICinf<<"\n";
+    }   */
+//affichage de la fonction spread avec rédution de variance pour K dans ]-1,1[
+
+/* int n=100;
+for (int i=0;i<=n;i++){
+    par.nb_simul= 10000; 
+    par.T=2;
+    par.r=0.01;
+    par.sig1=0.25;
+    par.sig2=0.3;
+    par.beta=1;
+    par.alpha=1.2;
+    par.S2=1;
+    par.rho=0.5;
+    par.K= -1.+(double)i*2./(double)n; 
+
+    simulation SMC=spread_MC_conditionner(par);
+    out<<SMC.val<<"\n";
+    out<<SMC.val-SMC.ICinf<<"\n";
+    }   */
+//affichage de la fonction spread avec rédution de variance controle pour sigma dans [0,0.]^2[
+
+/* int n=100;
+for (int i=0;i<=n;i++){
+    for(int j=0;j<=n;j++){
+        par.nb_simul= 10000; 
+        par.T=2;
+        par.r=0.01;
+        par.sig1=(double)i*0.8/(double)n;
+        par.sig2=-1.+(double)j*0.8/(double)n;
+        par.beta=1;
+        par.alpha=1.2;
+        par.S2=1;
+        par.rho=0.5;
+        par.K=0.2; 
+
+        simulation SMC=variableControle(par);
+        out<<SMC.val<<"\n";
+        out<<SMC.val-SMC.ICinf<<"\n";
     }
-    y=0;
-    double K=par.alpha*par.S1*exp((-pow(par.sig1,2))/2*par.T+par.sig1*y);
 
-    double MCcond=0;
-    for (int i=0;i<par.nb_simul;i++){
-        ST=par.beta*par.S2*exp(()*par.T + par.sg2*par.rho*W1[i])
-    }
+    }   */
 
+//comparaison option échange conditionner et sans conditionnement
 
-
-
-
-    cout<<"P_monte-carlo="<<P<<"\n";
-    cout<<"var="<<var<<"\n";
-    cout<<"P_analytique="<<P_a<<"\n";
-    cout<<"P_condtionnement="<<MCcond<<"\n";
-    cout<<"erreur="<<1.96*sqrt(var/(double)par.nb_simul)<<"\n";
-    cout<<"intervalle de confiance ["<<P-1.96*sqrt(var/(double)par.nb_simul)<<","<<P+1.96*sqrt(var/(double)par.nb_simul)<<"]\n";
-    cout<<"\n";
-    cout<<"P_antithetique="<<P_anti<<"\n";
-    cout<<"erreur="<<1.96*sqrt(var_anti/(2*(double)par.nb_simul))<<"\n";
-    cout<<"intervalle de confiance ["<<P_anti-1.96*sqrt(var_anti/(2*(double)par.nb_simul))<<","<<P_anti+1.96*sqrt(var_anti/(2*(double)par.nb_simul))<<"]\n";
+/*     int n=100;
+    for (int i=1;i<=n;i++){
+        par.nb_simul= 1000*i; 
+        simulation EMC=echange_MC(par);
+        simulation SMC=echange_MC_conditionner(par);
+        out<<EMC.val<<"\n";
+        out<<SMC.val<<"\n";
+        out<<EMC.val-EMC.ICinf <<"\n";
+        out<<SMC.val-SMC.ICinf<<"\n";
+    }  */
     return 1;
 }
