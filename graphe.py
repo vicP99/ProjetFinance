@@ -72,7 +72,7 @@ inf=Val-E
 supCond=ValCond+Econd
 infCond=ValCond-Econd"""
 fig = plt.figure()
-ax = fig.gca(projection='3d')
+#ax = fig.gca(projection='3d')
 fichier=open("out/sortie.txt","r")
 Val=[]
 A=np.eye(101,101)
@@ -92,10 +92,11 @@ sigma1=np.linspace(0,0.8,101)
 sigma2=np.linspace(0,0.8,101)
 X,Y=np.meshgrid(sigma1,sigma2)
 a=sigma1
-b=A()
+b=A[:,75]
 print(Y)
+plt.plot(a,b)
 #plt.imshow(A)
-surf = ax.plot_surface(X, Y, A)
+#surf = ax.plot_surface(X, Y, A)
 #plt.colorbar()
 #plt.xticks([0,1:2.5,25,37.5,50,62.5,75,87.5,100],[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])
 #plt.yticks([100,87.5,75,62.5,50,37.5,25,12.5,0],[0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8])

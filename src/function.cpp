@@ -327,6 +327,7 @@ simulation spread_MC_conditionner(parametre par){
 }
 //spread par cariable de controle + conditionnement
 simulation variableControle(parametre par){
+    srand(0);
     simulation res;
     vector<vecteur> inde=normal_indep(par.nb_simul,sqrt(par.T),sqrt(par.T));
     vecteur W2=inde[1];
